@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "klib/kvec.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/event/loop.h"
@@ -25,6 +24,8 @@
 #include "nvim/tui/tui.h"
 #include "nvim/ui_client.h"
 
+#include "klib/kvec.h"
+
 #ifdef MSWIN
 # include "nvim/os/os_win_console.h"
 #endif
@@ -40,83 +41,83 @@ static const struct kitty_key_map_entry {
   int key;
   const char *name;
 } kitty_key_map_entry[] = {
-  { KITTY_KEY_ESCAPE,              "Esc" },
-  { KITTY_KEY_ENTER,               "CR" },
-  { KITTY_KEY_TAB,                 "Tab" },
-  { KITTY_KEY_BACKSPACE,           "BS" },
-  { KITTY_KEY_INSERT,              "Insert" },
-  { KITTY_KEY_DELETE,              "Del" },
-  { KITTY_KEY_LEFT,                "Left" },
-  { KITTY_KEY_RIGHT,               "Right" },
-  { KITTY_KEY_UP,                  "Up" },
-  { KITTY_KEY_DOWN,                "Down" },
-  { KITTY_KEY_PAGE_UP,             "PageUp" },
-  { KITTY_KEY_PAGE_DOWN,           "PageDown" },
-  { KITTY_KEY_HOME,                "Home" },
-  { KITTY_KEY_END,                 "End" },
-  { KITTY_KEY_F1,                  "F1" },
-  { KITTY_KEY_F2,                  "F2" },
-  { KITTY_KEY_F3,                  "F3" },
-  { KITTY_KEY_F4,                  "F4" },
-  { KITTY_KEY_F5,                  "F5" },
-  { KITTY_KEY_F6,                  "F6" },
-  { KITTY_KEY_F7,                  "F7" },
-  { KITTY_KEY_F8,                  "F8" },
-  { KITTY_KEY_F9,                  "F9" },
-  { KITTY_KEY_F10,                 "F10" },
-  { KITTY_KEY_F11,                 "F11" },
-  { KITTY_KEY_F12,                 "F12" },
-  { KITTY_KEY_F13,                 "F13" },
-  { KITTY_KEY_F14,                 "F14" },
-  { KITTY_KEY_F15,                 "F15" },
-  { KITTY_KEY_F16,                 "F16" },
-  { KITTY_KEY_F17,                 "F17" },
-  { KITTY_KEY_F18,                 "F18" },
-  { KITTY_KEY_F19,                 "F19" },
-  { KITTY_KEY_F20,                 "F20" },
-  { KITTY_KEY_F21,                 "F21" },
-  { KITTY_KEY_F22,                 "F22" },
-  { KITTY_KEY_F23,                 "F23" },
-  { KITTY_KEY_F24,                 "F24" },
-  { KITTY_KEY_F25,                 "F25" },
-  { KITTY_KEY_F26,                 "F26" },
-  { KITTY_KEY_F27,                 "F27" },
-  { KITTY_KEY_F28,                 "F28" },
-  { KITTY_KEY_F29,                 "F29" },
-  { KITTY_KEY_F30,                 "F30" },
-  { KITTY_KEY_F31,                 "F31" },
-  { KITTY_KEY_F32,                 "F32" },
-  { KITTY_KEY_F33,                 "F33" },
-  { KITTY_KEY_F34,                 "F34" },
-  { KITTY_KEY_F35,                 "F35" },
-  { KITTY_KEY_KP_0,                "k0" },
-  { KITTY_KEY_KP_1,                "k1" },
-  { KITTY_KEY_KP_2,                "k2" },
-  { KITTY_KEY_KP_3,                "k3" },
-  { KITTY_KEY_KP_4,                "k4" },
-  { KITTY_KEY_KP_5,                "k5" },
-  { KITTY_KEY_KP_6,                "k6" },
-  { KITTY_KEY_KP_7,                "k7" },
-  { KITTY_KEY_KP_8,                "k8" },
-  { KITTY_KEY_KP_9,                "k9" },
-  { KITTY_KEY_KP_DECIMAL,          "kPoint" },
-  { KITTY_KEY_KP_DIVIDE,           "kDivide" },
-  { KITTY_KEY_KP_MULTIPLY,         "kMultiply" },
-  { KITTY_KEY_KP_SUBTRACT,         "kMinus" },
-  { KITTY_KEY_KP_ADD,              "kPlus" },
-  { KITTY_KEY_KP_ENTER,            "kEnter" },
-  { KITTY_KEY_KP_EQUAL,            "kEqual" },
-  { KITTY_KEY_KP_LEFT,             "kLeft" },
-  { KITTY_KEY_KP_RIGHT,            "kRight" },
-  { KITTY_KEY_KP_UP,               "kUp" },
-  { KITTY_KEY_KP_DOWN,             "kDown" },
-  { KITTY_KEY_KP_PAGE_UP,          "kPageUp" },
-  { KITTY_KEY_KP_PAGE_DOWN,        "kPageDown" },
-  { KITTY_KEY_KP_HOME,             "kHome" },
-  { KITTY_KEY_KP_END,              "kEnd" },
-  { KITTY_KEY_KP_INSERT,           "kInsert" },
-  { KITTY_KEY_KP_DELETE,           "kDel" },
-  { KITTY_KEY_KP_BEGIN,            "kOrigin" },
+  { KITTY_KEY_ESCAPE, "Esc" },
+  { KITTY_KEY_ENTER, "CR" },
+  { KITTY_KEY_TAB, "Tab" },
+  { KITTY_KEY_BACKSPACE, "BS" },
+  { KITTY_KEY_INSERT, "Insert" },
+  { KITTY_KEY_DELETE, "Del" },
+  { KITTY_KEY_LEFT, "Left" },
+  { KITTY_KEY_RIGHT, "Right" },
+  { KITTY_KEY_UP, "Up" },
+  { KITTY_KEY_DOWN, "Down" },
+  { KITTY_KEY_PAGE_UP, "PageUp" },
+  { KITTY_KEY_PAGE_DOWN, "PageDown" },
+  { KITTY_KEY_HOME, "Home" },
+  { KITTY_KEY_END, "End" },
+  { KITTY_KEY_F1, "F1" },
+  { KITTY_KEY_F2, "F2" },
+  { KITTY_KEY_F3, "F3" },
+  { KITTY_KEY_F4, "F4" },
+  { KITTY_KEY_F5, "F5" },
+  { KITTY_KEY_F6, "F6" },
+  { KITTY_KEY_F7, "F7" },
+  { KITTY_KEY_F8, "F8" },
+  { KITTY_KEY_F9, "F9" },
+  { KITTY_KEY_F10, "F10" },
+  { KITTY_KEY_F11, "F11" },
+  { KITTY_KEY_F12, "F12" },
+  { KITTY_KEY_F13, "F13" },
+  { KITTY_KEY_F14, "F14" },
+  { KITTY_KEY_F15, "F15" },
+  { KITTY_KEY_F16, "F16" },
+  { KITTY_KEY_F17, "F17" },
+  { KITTY_KEY_F18, "F18" },
+  { KITTY_KEY_F19, "F19" },
+  { KITTY_KEY_F20, "F20" },
+  { KITTY_KEY_F21, "F21" },
+  { KITTY_KEY_F22, "F22" },
+  { KITTY_KEY_F23, "F23" },
+  { KITTY_KEY_F24, "F24" },
+  { KITTY_KEY_F25, "F25" },
+  { KITTY_KEY_F26, "F26" },
+  { KITTY_KEY_F27, "F27" },
+  { KITTY_KEY_F28, "F28" },
+  { KITTY_KEY_F29, "F29" },
+  { KITTY_KEY_F30, "F30" },
+  { KITTY_KEY_F31, "F31" },
+  { KITTY_KEY_F32, "F32" },
+  { KITTY_KEY_F33, "F33" },
+  { KITTY_KEY_F34, "F34" },
+  { KITTY_KEY_F35, "F35" },
+  { KITTY_KEY_KP_0, "k0" },
+  { KITTY_KEY_KP_1, "k1" },
+  { KITTY_KEY_KP_2, "k2" },
+  { KITTY_KEY_KP_3, "k3" },
+  { KITTY_KEY_KP_4, "k4" },
+  { KITTY_KEY_KP_5, "k5" },
+  { KITTY_KEY_KP_6, "k6" },
+  { KITTY_KEY_KP_7, "k7" },
+  { KITTY_KEY_KP_8, "k8" },
+  { KITTY_KEY_KP_9, "k9" },
+  { KITTY_KEY_KP_DECIMAL, "kPoint" },
+  { KITTY_KEY_KP_DIVIDE, "kDivide" },
+  { KITTY_KEY_KP_MULTIPLY, "kMultiply" },
+  { KITTY_KEY_KP_SUBTRACT, "kMinus" },
+  { KITTY_KEY_KP_ADD, "kPlus" },
+  { KITTY_KEY_KP_ENTER, "kEnter" },
+  { KITTY_KEY_KP_EQUAL, "kEqual" },
+  { KITTY_KEY_KP_LEFT, "kLeft" },
+  { KITTY_KEY_KP_RIGHT, "kRight" },
+  { KITTY_KEY_KP_UP, "kUp" },
+  { KITTY_KEY_KP_DOWN, "kDown" },
+  { KITTY_KEY_KP_PAGE_UP, "kPageUp" },
+  { KITTY_KEY_KP_PAGE_DOWN, "kPageDown" },
+  { KITTY_KEY_KP_HOME, "kHome" },
+  { KITTY_KEY_KP_END, "kEnd" },
+  { KITTY_KEY_KP_INSERT, "kInsert" },
+  { KITTY_KEY_KP_DELETE, "kDel" },
+  { KITTY_KEY_KP_BEGIN, "kOrigin" },
 };
 
 static PMap(int) kitty_key_map = MAP_INIT;
@@ -139,8 +140,8 @@ void tinput_init(TermInput *input, Loop *loop, TerminfoEntry *ti)
     pmap_put(int)(&kitty_key_map, kitty_key_map_entry[i].key, (ptr_t)kitty_key_map_entry[i].name);
   }
 
-  input->tk = termkey_new_abstract(ti, (TERMKEY_FLAG_UTF8 | TERMKEY_FLAG_NOSTART
-                                        | TERMKEY_FLAG_KEEPC0));
+  input->tk
+    = termkey_new_abstract(ti, (TERMKEY_FLAG_UTF8 | TERMKEY_FLAG_NOSTART | TERMKEY_FLAG_KEEPC0));
   termkey_set_buffer_size(input->tk, INPUT_BUFFER_SIZE);
   termkey_hook_terminfo_getstr(input->tk, input->tk_ti_hook_fn, input);
   termkey_start(input->tk);
@@ -178,8 +179,7 @@ void tinput_stop(TermInput *input)
   uv_timer_stop(&input->bg_query_timer);
 }
 
-static void tinput_done_event(void **argv)
-  FUNC_ATTR_NORETURN
+static void tinput_done_event(void **argv) FUNC_ATTR_NORETURN
 {
   os_exit(1);
 }
@@ -190,8 +190,8 @@ static void tinput_flush(TermInput *input)
   String keys = { .data = input->key_buffer, .size = input->key_buffer_len };
   if (input->paste) {  // produce exactly one paste event
     MAXSIZE_TEMP_ARRAY(args, 3);
-    ADD_C(args, STRING_OBJ(keys));  // 'data'
-    ADD_C(args, BOOLEAN_OBJ(true));  // 'crlf'
+    ADD_C(args, STRING_OBJ(keys));           // 'data'
+    ADD_C(args, BOOLEAN_OBJ(true));          // 'crlf'
     ADD_C(args, INTEGER_OBJ(input->paste));  // 'phase'
     rpc_send_event(ui_client_channel_id, "nvim_paste", args);
     if (input->paste == 1) {
@@ -224,8 +224,8 @@ static void tinput_enqueue(TermInput *input, const char *buf, size_t size)
 /// Handle TERMKEY_KEYMOD_* modifiers, i.e. Shift, Alt and Ctrl.
 ///
 /// @return  The number of bytes written into "buf", excluding the final NUL.
-static size_t handle_termkey_modifiers(TermKeyKey *key, char *buf, size_t buflen)
-  FUNC_ATTR_WARN_UNUSED_RESULT
+static size_t handle_termkey_modifiers(TermKeyKey *key, char *buf,
+                                       size_t buflen) FUNC_ATTR_WARN_UNUSED_RESULT
 {
   size_t len = 0;
   if (key->modifiers & TERMKEY_KEYMOD_SHIFT) {  // Shift
@@ -242,14 +242,14 @@ static size_t handle_termkey_modifiers(TermKeyKey *key, char *buf, size_t buflen
 }
 
 enum {
-  KEYMOD_SUPER      = 1 << 3,
-  KEYMOD_META       = 1 << 5,
+  KEYMOD_SUPER = 1 << 3,
+  KEYMOD_META = 1 << 5,
 #ifdef _MSC_VER
 # pragma warning(push)
 # pragma warning(disable : 5287)
 #endif
-  KEYMOD_RECOGNIZED = (TERMKEY_KEYMOD_SHIFT | TERMKEY_KEYMOD_ALT | TERMKEY_KEYMOD_CTRL
-                       | KEYMOD_SUPER | KEYMOD_META),
+  KEYMOD_RECOGNIZED
+  = (TERMKEY_KEYMOD_SHIFT | TERMKEY_KEYMOD_ALT | TERMKEY_KEYMOD_CTRL | KEYMOD_SUPER | KEYMOD_META),
 #ifdef _MSC_VER
 # pragma warning(pop)
 #endif
@@ -259,8 +259,8 @@ enum {
 /// Currently only Super ("D-") and Meta ("T-") are supported in Nvim.
 ///
 /// @return  The number of bytes written into "buf", excluding the final NUL.
-static size_t handle_more_modifiers(TermKeyKey *key, char *buf, size_t buflen)
-  FUNC_ATTR_WARN_UNUSED_RESULT
+static size_t handle_more_modifiers(TermKeyKey *key, char *buf,
+                                    size_t buflen) FUNC_ATTR_WARN_UNUSED_RESULT
 {
   size_t len = 0;
   if (key->modifiers & KEYMOD_SUPER) {
@@ -271,6 +271,23 @@ static size_t handle_more_modifiers(TermKeyKey *key, char *buf, size_t buflen)
   }
   assert(len < buflen);
   return len;
+}
+static void handle_key_event(TermInput *input, TermKeyKey *key)
+
+{
+  char *ptr = key->utf8;
+  char buf[64];
+  size_t len = 0;
+  buf[len++] = '<';
+  len += (size_t)snprintf(buf + len, sizeof(buf) - len, "R:");
+  while (*ptr) {
+    buf[len++] = *ptr;
+    assert(len < sizeof(buf));
+    ptr++;
+  }
+  buf[len++] = '>';
+  assert(len < sizeof(buf));
+  tinput_enqueue(input, buf, len);
 }
 
 static void handle_kitty_key_protocol(TermInput *input, TermKeyKey *key)
@@ -317,8 +334,7 @@ static void forward_modified_utf8(TermInput *input, TermKeyKey *key)
   size_t len;
   char buf[64];
 
-  if (key->type == TERMKEY_TYPE_KEYSYM
-      && key->code.sym == TERMKEY_SYM_SUSPEND) {
+  if (key->type == TERMKEY_TYPE_KEYSYM && key->code.sym == TERMKEY_SYM_SUSPEND) {
     len = (size_t)snprintf(buf, sizeof(buf), "<C-Z>");
   } else if (key->type != TERMKEY_TYPE_UNICODE) {
     len = termkey_strfkey(input->tk, buf, sizeof(buf), key, TERMKEY_FORMAT_VIM);
@@ -333,8 +349,7 @@ static void forward_modified_utf8(TermInput *input, TermKeyKey *key)
     // ctrl-shift-l is <C-L> instead of <C-S-L>.  Vim, on the other hand,
     // treats <C-L> and <C-l> the same, requiring the S- modifier.
     len = termkey_strfkey(input->tk, buf, sizeof(buf), key, TERMKEY_FORMAT_VIM);
-    if ((key->modifiers & TERMKEY_KEYMOD_CTRL)
-        && !(key->modifiers & TERMKEY_KEYMOD_SHIFT)
+    if ((key->modifiers & TERMKEY_KEYMOD_CTRL) && !(key->modifiers & TERMKEY_KEYMOD_SHIFT)
         && ASCII_ISUPPER(key->code.codepoint)) {
       assert(len + 2 < sizeof(buf));
       // Make room for the S-
@@ -367,8 +382,7 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
   TermKeyMouseEvent ev;
   termkey_interpret_mouse(input->tk, key, &ev, &button, &row, &col);
 
-  if ((ev == TERMKEY_MOUSE_RELEASE || ev == TERMKEY_MOUSE_DRAG)
-      && button == 0) {
+  if ((ev == TERMKEY_MOUSE_RELEASE || ev == TERMKEY_MOUSE_DRAG) && button == 0) {
     // Some terminals (like urxvt) don't report which button was released.
     // libtermkey reports button 0 in this case.
     // For drag and release, we can reasonably infer the button to be the last
@@ -381,7 +395,8 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     return;
   }
 
-  row--; col--;  // Termkey uses 1-based coordinates
+  row--;
+  col--;  // Termkey uses 1-based coordinates
   buf[len++] = '<';
 
   len += handle_termkey_modifiers(key, buf + len, sizeof(buf) - len);
@@ -443,18 +458,18 @@ static void tk_getkeys(TermInput *input, bool force)
 
   while ((result = tk_getkey(input->tk, &key, force)) == TERMKEY_RES_KEY) {
     // Only press and repeat events are handled for now
-    switch (key.event) {
-    case TERMKEY_EVENT_PRESS:
-    case TERMKEY_EVENT_REPEAT:
-      break;
-    default:
-      continue;
-    }
-
-    if (key.type == TERMKEY_TYPE_UNICODE && !(key.modifiers & KEYMOD_RECOGNIZED)) {
+    // switch (key.event) {
+    // case TERMKEY_EVENT_PRESS:
+    // case TERMKEY_EVENT_REPEAT:
+    //  break;
+    // default:
+    //  continue;
+    //}
+    if (key.event == TERMKEY_EVENT_RELEASE) {
+      handle_key_event(input, &key);
+    } else if (key.type == TERMKEY_TYPE_UNICODE && !(key.modifiers & KEYMOD_RECOGNIZED)) {
       forward_simple_utf8(input, &key);
-    } else if (key.type == TERMKEY_TYPE_UNICODE
-               || key.type == TERMKEY_TYPE_FUNCTION
+    } else if (key.type == TERMKEY_TYPE_UNICODE || key.type == TERMKEY_TYPE_FUNCTION
                || key.type == TERMKEY_TYPE_KEYSYM) {
       forward_modified_utf8(input, &key);
     } else if (key.type == TERMKEY_TYPE_MOUSE) {
@@ -499,8 +514,7 @@ static void tinput_timer_cb(uv_timer_t *handle)
   tinput_flush(input);
 }
 
-static void bg_query_timer_cb(uv_timer_t *handle)
-  FUNC_ATTR_NONNULL_ALL
+static void bg_query_timer_cb(uv_timer_t *handle) FUNC_ATTR_NONNULL_ALL
 {
   TermInput *input = handle->data;
   tui_query_bg_color(input->tui_data);
@@ -516,9 +530,7 @@ static void bg_query_timer_cb(uv_timer_t *handle)
 /// @return true iff handle_focus_event consumed some input
 static size_t handle_focus_event(TermInput *input, const char *ptr, size_t size)
 {
-  if (size >= 3
-      && (!memcmp(ptr, "\x1b[I", 3)
-          || !memcmp(ptr, "\x1b[O", 3))) {
+  if (size >= 3 && (!memcmp(ptr, "\x1b[I", 3) || !memcmp(ptr, "\x1b[O", 3))) {
     bool focus_gained = ptr[2] == 'I';
 
     MAXSIZE_TEMP_ARRAY(args, 1);
@@ -534,9 +546,7 @@ static size_t handle_focus_event(TermInput *input, const char *ptr, size_t size)
 static size_t handle_bracketed_paste(TermInput *input, const char *ptr, size_t size,
                                      bool *incomplete)
 {
-  if (size >= 6
-      && (!memcmp(ptr, START_PASTE, 6)
-          || !memcmp(ptr, END_PASTE, 6))) {
+  if (size >= 6 && (!memcmp(ptr, START_PASTE, 6) || !memcmp(ptr, END_PASTE, 6))) {
     bool enable = ptr[4] == '0';
     if (input->paste && enable) {
       return 0;  // Pasting "start paste" code literally.
@@ -560,9 +570,7 @@ static size_t handle_bracketed_paste(TermInput *input, const char *ptr, size_t s
       input->paste = 0;
     }
     return 6;
-  } else if (size < 6
-             && (!memcmp(ptr, START_PASTE, size)
-                 || !memcmp(ptr, END_PASTE, size))) {
+  } else if (size < 6 && (!memcmp(ptr, START_PASTE, size) || !memcmp(ptr, END_PASTE, size))) {
     // Wait for further input, as the sequence may be split.
     *incomplete = true;
     return 0;
@@ -571,8 +579,7 @@ static size_t handle_bracketed_paste(TermInput *input, const char *ptr, size_t s
 }
 
 /// Handle an OSC, DCS, or APC response sequence from the terminal.
-static void handle_term_response(TermInput *input, const TermKeyKey *key)
-  FUNC_ATTR_NONNULL_ALL
+static void handle_term_response(TermInput *input, const TermKeyKey *key) FUNC_ATTR_NONNULL_ALL
 {
   const char *str = NULL;
   if (termkey_interpret_string(input->tk, key, &str) == TERMKEY_RES_KEY) {
@@ -616,8 +623,8 @@ static void handle_term_response(TermInput *input, const TermKeyKey *key)
 }
 
 /// Handle a Primary Device Attributes (DA1) response from the terminal.
-static void handle_primary_device_attr(TermInput *input, TermKeyCsiParam *params, size_t nparams)
-  FUNC_ATTR_NONNULL_ALL
+static void handle_primary_device_attr(TermInput *input, TermKeyCsiParam *params,
+                                       size_t nparams) FUNC_ATTR_NONNULL_ALL
 {
   if (input->callbacks.primary_device_attr) {
     void (*cb_save)(TUIData *) = input->callbacks.primary_device_attr;
@@ -657,8 +664,7 @@ out:
 }
 
 /// Handle a mode report (DECRPM) sequence from the terminal.
-static void handle_modereport(TermInput *input, const TermKeyKey *key)
-  FUNC_ATTR_NONNULL_ALL
+static void handle_modereport(TermInput *input, const TermKeyKey *key) FUNC_ATTR_NONNULL_ALL
 {
   int initial;
   int mode;
@@ -670,8 +676,7 @@ static void handle_modereport(TermInput *input, const TermKeyKey *key)
 }
 
 /// Handle a CSI sequence from the terminal that is unrecognized by libtermkey.
-static void handle_unknown_csi(TermInput *input, const TermKeyKey *key)
-  FUNC_ATTR_NONNULL_ALL
+static void handle_unknown_csi(TermInput *input, const TermKeyKey *key) FUNC_ATTR_NONNULL_ALL
 {
   // There is no specified limit on the number of parameters a CSI sequence can
   // contain, so just allocate enough space for a large upper bound
@@ -744,8 +749,9 @@ static void handle_unknown_csi(TermInput *input, const TermKeyKey *key)
       rpc_send_event(ui_client_channel_id, "nvim_ui_term_event", args);
       kv_destroy(response);
     } else if (nparams == 2) {
-      // Hard to find comprehensive docs on these responses. Some can be found at https://www.xfree86.org/current/ctlseqs.html
-      // under "Device Status Report (DSR, DEC-specific)"
+      // Hard to find comprehensive docs on these responses. Some can be found at
+      // https://www.xfree86.org/current/ctlseqs.html under "Device Status Report (DSR,
+      // DEC-specific)"
       // - Report Printer status
       // - Report User Defined Key status
       // - Report Locator status
@@ -886,8 +892,7 @@ static size_t tinput_read_cb(RStream *stream, const char *buf, size_t count_, vo
   if (consumed < count_) {
     // If 'ttimeout' is not set, start the timer with a timeout of 0 to process
     // the next input.
-    int64_t ms = input->ttimeout
-                 ? (input->ttimeoutlen >= 0 ? input->ttimeoutlen : 0) : 0;
+    int64_t ms = input->ttimeout ? (input->ttimeoutlen >= 0 ? input->ttimeoutlen : 0) : 0;
     // Stop the current timer if already running
     uv_timer_stop(&input->timer_handle);
     uv_timer_start(&input->timer_handle, tinput_timer_cb, (uint32_t)ms, 0);
